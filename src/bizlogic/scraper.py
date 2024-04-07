@@ -3,10 +3,12 @@
 '''
 import os
 import re
+import json
 import shutil
 from PIL import Image
 from lxml import etree
 from flask import current_app
+from .gpttranslation import translate_text
 
 from ..service.taskservice import taskService
 from ..service.configservice import scrapingConfService, localConfService, _ScrapingConfigs
@@ -413,9 +415,15 @@ def core_main(filepath, numinfo: FileNumInfo, conf: _ScrapingConfigs, specifieds
     if not json_data or json_data.get('number') == '' or json_data.get('title') == '':
         current_app.logger.error('[-]Movie Data not found!')
         return False, moveFailedFolder(filepath)
+    
+    current_app.logger.info('刮削完成'+ number+'\n' + json.dumps(json_data))
 
     json_data = fixJson(json_data, conf.naming_rule)
 
+    #翻译
+    json_data['title'] = translate_text(json_data.get('title'))
+    json_data['outline'] = translate_text(json_data.get('outline'))
+    
     if json_data.get("number") != number:
         # fix issue #119
         # the root cause is we normalize the search id

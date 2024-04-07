@@ -9,3 +9,6 @@ cloudscraper
 transmission_rpc
 scrapinglib
 flask-sock
+openai
+tqdm
+chardet
